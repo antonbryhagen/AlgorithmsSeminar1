@@ -6,15 +6,15 @@ public class Task1 {
             System.out.print(arr[i]);
         }
         System.out.println();
-        //quickSortRecursive(arr, 0,arr.length-1);
-        insertionSortRecursive(arr, arr.length-1);
+        quickSortRecursive(arr, 0,arr.length-1);
+        //insertionSortRecursive(arr, arr.length-1);
         for (int i = 0; i < arr.length; i++){
             System.out.print(arr[i]);
         }
     }
     static int[] readNumbers(){
-        //int[] numbers = {9,8,7,6,5,4,3,2,1};
-        int[] numbers = {5, 7, 3, 2, 6, 1};
+        //int[] numbers = {9,8,7,6,5,4,3,2,1, 5, 4, 2, 1, 2, 3, 5};
+        int[] numbers = {5, 4, 3, 2, 1};
         return numbers;
     }
     public static void quickSortIterative(int[] numbers, int left, int right){
@@ -53,16 +53,21 @@ public class Task1 {
 
     }
     public static void quickSortRecursive(int[] numbers, int left, int right){
+
         if (left < right){
             int pivot = median3(numbers, left, right);
+
             //begin partitioning
             int i = left, j = right - 1;
-            for (;;){
-                while (numbers[++i] < pivot) {}
-                while (numbers[--j] > pivot) {}
-                if (i < j){
+            //for (;;)
+            while (i < j) {
+                while (numbers[++i] < pivot) {
+                }
+                while (numbers[--j] > pivot) {
+                }
+                if (i < j) {
                     swapReferences(numbers, i, j);
-                }else {
+                } else {
                     break;
                 }
             }
@@ -70,7 +75,6 @@ public class Task1 {
             quickSortRecursive(numbers, left, i-1); //sort small
             quickSortRecursive(numbers, i+1, right); //sort big
         }
-
 
     }
     public static int partitioning(int[] numbers, int left, int right){
