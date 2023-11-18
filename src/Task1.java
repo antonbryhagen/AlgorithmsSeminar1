@@ -1,20 +1,80 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class Task1 {
 
     public static void main(String[] args){
-        int[] arr = readNumbers();
+
+
+        boolean run = true;
+
+        while(run){
+            System.out.println("Select algorithm: ");
+            System.out.println("1. Recursive QuickSort" +
+                    "\n2. Iterative QuickSort" +
+                    "\n3. Recursive InsertionSort" +
+                    "\n4. Iterative InsertionSort" +
+                    "\n5. Recursive BinarySearch" +
+                    "\n6. Iterative BinarySearch" +
+                    "\nUse exit to exit the program");
+            Scanner input = new Scanner(System.in);
+            String option = input.nextLine();
+            switch(option){
+                case "1":
+                    System.out.println("Enter how many numbers to sort: ");
+                    int n = input.nextInt();
+
+                    int[] arr = readNumbers(n);
+                    long start = System.nanoTime();
+                    quickSortRecursive(arr, 0, n-1);
+                    long end = System.nanoTime();
+                    for (int i = 0; i < arr.length; i++){
+                        System.out.println(arr[i]);
+                    }
+                    System.out.println("\nTime to sort: "+(end-start)+" nano seconds");
+                    break;
+                case "exit":
+                    run = false;
+            }
+        }
+
+
+        //int[] arr = readNumbers(10);
+        /*
         for (int i = 0; i < arr.length; i++){
             System.out.print(arr[i]);
         }
         System.out.println();
+
         quickSortRecursive(arr, 0,arr.length-1);
+
         //insertionSortRecursive(arr, arr.length-1);
         for (int i = 0; i < arr.length; i++){
-            System.out.print(arr[i]);
-        }
+            System.out.println(arr[i]);
+        }*/
+
     }
-    static int[] readNumbers(){
+    static int[] readNumbers(int n){
         //int[] numbers = {9,8,7,6,5,4,3,2,1, 5, 4, 2, 1, 2, 3, 5};
-        int[] numbers = {5, 4, 3, 2, 1};
+        //int[] numbers = {5, 4, 3, 2, 1};
+        int[] numbers = new int[n];
+        try{
+            File fileObj = new File("numbers.txt");
+            Scanner reader = new Scanner(fileObj);
+            int i = 0;
+            while (reader.hasNextLine()){
+                if (i < n){
+                    int number = reader.nextInt();
+                    numbers[i] = number;
+                    i++;
+                }else{
+                    break;
+                }
+            }
+        }catch(FileNotFoundException fnfe){
+            fnfe.printStackTrace();
+        }
         return numbers;
     }
     public static void quickSortIterative(int[] numbers, int left, int right){
