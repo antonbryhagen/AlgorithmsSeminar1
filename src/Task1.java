@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Task1 {
@@ -8,12 +9,12 @@ public class Task1 {
 
 
         boolean run = true;
-        boolean sort = true;
         long start = 0;
         long end = 0;
         int[] arr = {};
         int target = 0;
-        int targetFound = -1;
+        boolean targetFound = false;
+        String pivotMethod = "";
 
         while(run){
             System.out.println("Select algorithm: ");
@@ -26,111 +27,77 @@ public class Task1 {
                     "\nUse exit to exit the program");
             Scanner input = new Scanner(System.in);
             String option = input.nextLine();
+            System.out.println("Enter input size: ");
+            int n = input.nextInt();
+            System.out.println("Enter number of iterations: ");
+            int iterations = input.nextInt();
+            long totalTime = 0;
 
-            switch(option){
-                case "1":
-                    arr = setUpSort();
-                    for (int i = 0; i < arr.length; i++){
-                        System.out.print(arr[i]+" ");
-                    }
-                    start = System.nanoTime();
-                    quickSortRecursive(arr, 0, arr.length-1);
-                    end = System.nanoTime();
-                    break;
-                case "2":
-                    arr = setUpSort();
-                    for (int i = 0; i < arr.length; i++){
-                        System.out.print(arr[i]+" ");
-                    }
-                    start = System.nanoTime();
-                    quickSortIterative(arr, 0, arr.length-1);
-                    end = System.nanoTime();
-                    break;
-                case "3":
-                    arr = setUpSort();
-                    for (int i = 0; i < arr.length; i++){
-                        System.out.print(arr[i]+" ");
-                    }
-                    start = System.nanoTime();
-                    insertionSortRecursive(arr, arr.length-1);
-                    end = System.nanoTime();
-                    break;
-                case "4":
-                    arr = setUpSort();
-                    for (int i = 0; i < arr.length; i++){
-                        System.out.print(arr[i]+" ");
-                    }
-                    start = System.nanoTime();
-                    insertionSortIterative(arr);
-                    end = System.nanoTime();
-                    break;
-                case "5":
-                    sort = false;
-                    arr = setUpSearch();
-                    System.out.println("Enter number to search for (0 <= target <= 100): ");
-                    target = input.nextInt();
-                    quickSortRecursive(arr, 0, arr.length-1);
-                    start = System.nanoTime();
-                    targetFound = binarySearchRecursive(arr, target, 0, arr.length-1);
-                    end = System.nanoTime();
-                    break;
-                case "exit":
-                    run = false;
-                    break;
-            }
-            if (sort && run){
-                for (int i = 0; i < arr.length; i++){
-                    System.out.println(arr[i]);
-                }
-                System.out.println("\nTime to sort: "+(end-start)+" nano seconds");
-            }
-            else if (!sort && run){
-                sort = true;
-                if (targetFound != -1){
-                    System.out.println("Found target at index: "+targetFound);
-                }else{
-                    System.out.println("Could not find target.");
-                }
-                System.out.println("\nTime to search: "+(end-start)+" nano seconds");
+            if(option.equals("1") || option.equals("2")){
+                input.nextLine(); // "eat" newline char from int input
+                System.out.println("Enter pivot method (first, random or median3)");
+                pivotMethod = input.nextLine();
             }
 
+            for (int i = 0; i < iterations; i++){
+                switch(option){
+                    case "1":
+                        arr = readNumbers(n);
+                        start = System.nanoTime();
+                        quickSortRecursive(arr, 0, arr.length-1, pivotMethod);
+                        end = System.nanoTime();
+                        break;
+                    case "2":
+                        arr = readNumbers(n);
+                        start = System.nanoTime();
+                        quickSortIterative(arr, 0, arr.length-1);
+                        end = System.nanoTime();
+                        break;
+                    case "3":
+                        arr = readNumbers(n);
+                        start = System.nanoTime();
+                        insertionSortRecursive(arr, arr.length-1);
+                        end = System.nanoTime();
+                        break;
+                    case "4":
+                        arr = readNumbers(n);
+                        start = System.nanoTime();
+                        insertionSortIterative(arr);
+                        end = System.nanoTime();
+                        break;
+                    case "5":
+                        //binary search using recursive quicksort with median3 pivot as sorting algorithm
+                        arr = readNumbers(n);
+                        System.out.println("Enter number to search for (0 <= target <= 100): ");
+                        target = input.nextInt();
+                        quickSortRecursive(arr, 0, arr.length-1, "median3");
+                        start = System.nanoTime();
+                        targetFound = binarySearchRecursive(arr, target, 0, arr.length-1);
+                        end = System.nanoTime();
+                        System.out.println("Target found: "+targetFound);
+                        break;
+                    case "exit":
+                        i = iterations; //stop for loop
+                        run = false;
+                        break;
+                }
+                if (run){
+                    for (int j = 0; j < arr.length; j++){
+                        System.out.println(arr[j]);
+                    }
+                    System.out.println("\nRun time for algorithm: "+(end-start)+" nano seconds");
+                    totalTime = totalTime + (end-start);
+                }
+            }
+
+            if (run){
+                System.out.println("Average run time for algorithm: "+(totalTime / iterations));
+            }
         }
 
-        /*
-        int[] arr = readNumbers(10);
-
-        for (int i = 0; i < arr.length; i++){
-            System.out.print(arr[i]+" ");
-        }
-        System.out.println();
-
-        quickSortIterative(arr, 0,arr.length-1);
-
-        //insertionSortRecursive(arr, arr.length-1);
-        for (int i = 0; i < arr.length; i++){
-            System.out.println(arr[i]);
-        }*/
-
-    }
-
-    static int[] setUpSort(){
-        Scanner input = new Scanner(System.in);
-        System.out.println("Enter how many numbers to sort: ");
-        int n = input.nextInt();
-        return readNumbers(n);
-    }
-
-    static int[] setUpSearch(){
-        Scanner input = new Scanner(System.in);
-        System.out.println("Enter how many numbers to search from: ");
-        int n = input.nextInt();
-        return readNumbers(n);
     }
 
     static int[] readNumbers(int n){
-        //int[] numbers = {9,8,7,6,5,4,3,2,1, 5, 4, 2, 1, 2, 3, 5};
-        //int[] numbers = {5, 4, 3, 2, 1};
-
         int[] numbers = new int[n];
         try{
             File fileObj = new File("numbers.txt");
@@ -184,13 +151,13 @@ public class Task1 {
         //swapReferences(numbers, p, right-1);
 
     }
-    public static void quickSortRecursive(int[] numbers, int left, int right){
+    public static void quickSortRecursive(int[] numbers, int left, int right, String pivotMethod){
 
         if (left < right){
-            int pivot = median3(numbers, left, right);
+            int pivot = pivot(pivotMethod, numbers, left, right);
 
             //begin partitioning
-            int i = left, j = right - 1;
+            int i = left, j = right - 1;    //j = right - 1;
             //for (;;)
             while (i < j) {
                 while (numbers[++i] < pivot) {
@@ -204,8 +171,8 @@ public class Task1 {
                 }
             }
             swapReferences(numbers, i, right - 1); //restore pivot
-            quickSortRecursive(numbers, left, i-1); //sort small
-            quickSortRecursive(numbers, i+1, right); //sort big
+            quickSortRecursive(numbers, left, i-1, pivotMethod); //sort small
+            quickSortRecursive(numbers, i+1, right, pivotMethod); //sort big
         }
 
     }
@@ -227,6 +194,32 @@ public class Task1 {
 
         return i + 1;
     }
+
+    public static int pivot(String pivotMethod, int[] numbers, int left, int right){
+        if (pivotMethod.equals("first")){
+            return first(numbers, left, right);
+        }else if (pivotMethod.equals("random")){
+            return random(numbers, left, right);
+        }
+        return median3(numbers, left, right);
+    }
+
+    public static int first(int[] numbers, int left, int right){
+        int pivot = numbers[0];
+        //store pivot at second to last element
+        swapReferences(numbers, 0, right-1);
+        return numbers[right-1];
+    }
+
+    public static int random(int[] numbers, int left, int right){
+        //randomize an index to take pivot value from
+        Random rand = new Random();
+        int pivot = rand.nextInt(right-left)+left;
+        //store pivot at second to last element
+        swapReferences(numbers, pivot, right-1);
+        return numbers[right-1];
+    }
+
     public static int median3(int[] numbers, int left, int right){
         int center = (left + right) / 2;
         if (numbers[center] < numbers[left]){
@@ -271,11 +264,11 @@ public class Task1 {
         }
     }
 
-    public static int binarySearchRecursive(int[] numbers, int target, int low, int high){
+    public static boolean binarySearchRecursive(int[] numbers, int target, int low, int high){
         if (high >= low){
             int mid = low + (high - low) / 2;
             if (numbers[mid] == target){
-                return mid;
+                return true;
             }
             //search left half
             if (numbers[mid] > target){
@@ -284,7 +277,7 @@ public class Task1 {
             //search right half
             return binarySearchRecursive(numbers, target, mid+1, high);
         }
-        return -1;
+        return false;
     }
     
 }
