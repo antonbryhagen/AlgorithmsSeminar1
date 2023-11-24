@@ -15,6 +15,8 @@ public class Task1 {
         int target = 0;
         boolean targetFound = false;
         String pivotMethod = "";
+        int n = 0;
+        int iterations = 1; //run loop at least once so exit command works
 
         while(run){
             System.out.println("Select algorithm: ");
@@ -23,14 +25,15 @@ public class Task1 {
                     "\n3. InsertionSort Recursive" +
                     "\n4. InsertionSort Iterative" +
                     "\n5. BinarySearch Recursive" +
-                    "\n6. BinarySearch Iterative" +
                     "\nUse exit to exit the program");
             Scanner input = new Scanner(System.in);
             String option = input.nextLine();
-            System.out.println("Enter input size: ");
-            int n = input.nextInt();
-            System.out.println("Enter number of iterations: ");
-            int iterations = input.nextInt();
+            if(!option.equals("exit")) {
+                System.out.println("Enter input size: ");
+                n = input.nextInt();
+                System.out.println("Enter number of iterations: ");
+                iterations = input.nextInt();
+            }
             long totalTime = 0;
 
             if(option.equals("1") || option.equals("2")){
@@ -40,7 +43,7 @@ public class Task1 {
             }
 
             for (int i = 0; i < iterations; i++){
-                switch(option){
+                switch(option.trim()){
                     case "1":
                         arr = readNumbers(n);
                         start = System.nanoTime();
@@ -50,7 +53,7 @@ public class Task1 {
                     case "2":
                         arr = readNumbers(n);
                         start = System.nanoTime();
-                        quickSortIterative(arr, 0, arr.length-1);
+                        quickSortIterative(arr, 0, arr.length-1, pivotMethod);
                         end = System.nanoTime();
                         break;
                     case "3":
@@ -66,10 +69,11 @@ public class Task1 {
                         end = System.nanoTime();
                         break;
                     case "5":
-                        //binary search using recursive quicksort with median3 pivot as sorting algorithm
+                        //binary search using recursive quicksort with first element pivot as sorting algorithm
                         arr = readNumbers(n);
-                        System.out.println("Enter number to search for (0 <= target <= 100): ");
-                        target = input.nextInt();
+                        Random rand = new Random();
+                        target = rand.nextInt(101); //generate target to search for
+                        System.out.println("TARGET: "+target);
                         quickSortRecursive(arr, 0, arr.length-1, "median3");
                         start = System.nanoTime();
                         targetFound = binarySearchRecursive(arr, target, 0, arr.length-1);
@@ -91,7 +95,7 @@ public class Task1 {
             }
 
             if (run){
-                System.out.println("Average run time for algorithm: "+(totalTime / iterations));
+                System.out.println("Average run time for algorithm: "+(totalTime / iterations)+" nano seconds");
             }
         }
 
@@ -117,7 +121,7 @@ public class Task1 {
         }
         return numbers;
     }
-    public static void quickSortIterative(int[] numbers, int left, int right){
+    public static void quickSortIterative(int[] numbers, int left, int right, String pivotMethod){
         // create extra stack/array
         int[] stack = new int[right - left + 1];
         //init top of stacK/array
@@ -134,7 +138,7 @@ public class Task1 {
             right = stack[top--];
             left = stack[top--];
             //set pivot elem at correct pos in sorted array
-            p = partitioning(numbers, left, right);
+            p = partition(pivotMethod, numbers, left, right);
 
             //if elem on left side of pivot, push left side to stack
             if (p-1 > left){
@@ -154,70 +158,65 @@ public class Task1 {
     public static void quickSortRecursive(int[] numbers, int left, int right, String pivotMethod){
 
         if (left < right){
-            int pivot = pivot(pivotMethod, numbers, left, right);
+            int pivot = partition(pivotMethod, numbers, left, right);
+            quickSortRecursive(numbers, left, pivot, pivotMethod); //sort small
+            quickSortRecursive(numbers, pivot+1, right, pivotMethod); //sort big
+        }
 
-            //begin partitioning
-            int i = left, j = right - 1;    //j = right - 1;
-            //for (;;)
-            while (i < j) {
-                while (numbers[++i] < pivot) {
+    }
+
+    public static int partition(String pivotMethod, int[] numbers, int left, int right){
+        int pivot;
+        if (pivotMethod.equals("median3")){
+            pivot = median3(numbers, left, right);
+            int i = left, j = right-1;
+            while (i < j){
+                while (numbers[++i] < pivot){
                 }
-                while (numbers[--j] > pivot) {
+                while (numbers[--j] > pivot){
                 }
-                if (i < j) {
+                if (i < j){
                     swapReferences(numbers, i, j);
-                } else {
+                }else {
                     break;
                 }
             }
-            swapReferences(numbers, i, right - 1); //restore pivot
-            quickSortRecursive(numbers, left, i-1, pivotMethod); //sort small
-            quickSortRecursive(numbers, i+1, right, pivotMethod); //sort big
+            swapReferences(numbers, i, right-1); //restore pivot
+            return i;
+        //partition for random and first element as pivot, where pivot is placed at last position in array
+        }else if (pivotMethod.equals("random")){
+            pivot = random(numbers, left, right);
+        }else { //first element as pivot
+            pivot = first(numbers, left, right);
         }
+        int i = left;
 
-    }
-
-    public static int partitioning(int[] numbers, int left, int right){
-        int pivot = median3(numbers, left, right);
-        //int pivot = numbers[right];
-        int i = (left-1); // index of smaller elem
-        //for (int j = left; j <= right-1; j++) {
-        for (int j = left; j < right-1; j++) {
-            //elem smaller or equal to pivot
-            if (numbers[j] <= pivot){
-                i++;
+        for (int j = left; j < right; j++) {
+            if (numbers[j] < pivot) {
                 swapReferences(numbers, i, j);
+                i++;
             }
         }
-        //swap i+1 and right (or pivot)
-        swapReferences(numbers, i+1, right-1);
-
-        return i + 1;
+        // Swap pivot element to its correct position
+        swapReferences(numbers, i, right);
+        return i;
     }
 
-    public static int pivot(String pivotMethod, int[] numbers, int left, int right){
-        if (pivotMethod.equals("first")){
-            return first(numbers, left, right);
-        }else if (pivotMethod.equals("random")){
-            return random(numbers, left, right);
-        }
-        return median3(numbers, left, right);
-    }
 
     public static int first(int[] numbers, int left, int right){
-        int pivot = numbers[0];
-        //store pivot at second to last element
-        swapReferences(numbers, 0, right-1);
-        return numbers[right-1];
+        int pivot = numbers[left];
+        //store pivot at last element
+        swapReferences(numbers, left, right);
+        return numbers[right];
     }
 
     public static int random(int[] numbers, int left, int right){
         //randomize an index to take pivot value from
         Random rand = new Random();
         int pivot = rand.nextInt(right-left)+left;
-        //store pivot at second to last element
-        swapReferences(numbers, pivot, right-1);
-        return numbers[right-1];
+        //store pivot at last element
+        swapReferences(numbers, pivot, right);
+        return numbers[right];
     }
 
     public static int median3(int[] numbers, int left, int right){
