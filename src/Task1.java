@@ -41,6 +41,9 @@ public class Task1 {
                 System.out.println("Enter pivot method (first, random or median3)");
                 pivotMethod = input.nextLine();
             }
+            //Random rand = new Random();
+            //target = rand.nextInt(101); //generate target to search for
+            target = 101;
 
             for (int i = 0; i < iterations; i++){
                 switch(option.trim()){
@@ -71,8 +74,6 @@ public class Task1 {
                     case "5":
                         //binary search using recursive quicksort with first element pivot as sorting algorithm
                         arr = readNumbers(n);
-                        Random rand = new Random();
-                        target = rand.nextInt(101); //generate target to search for
                         System.out.println("TARGET: "+target);
                         quickSortRecursive(arr, 0, arr.length-1, "median3");
                         start = System.nanoTime();
@@ -86,9 +87,10 @@ public class Task1 {
                         break;
                 }
                 if (run){
+                    /*
                     for (int j = 0; j < arr.length; j++){
                         System.out.println(arr[j]);
-                    }
+                    }*/
                     System.out.println("\nRun time for algorithm: "+(end-start)+" nano seconds");
                     totalTime = totalTime + (end-start);
                 }
