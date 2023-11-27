@@ -3,10 +3,9 @@ import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.Scanner;
 
-public class Task1 {
+public class Main {
 
     public static void main(String[] args){
-
 
         boolean run = true;
         long start = 0;
@@ -34,17 +33,14 @@ public class Task1 {
                 System.out.println("Enter number of iterations: ");
                 iterations = input.nextInt();
             }
-            long totalTime = 0;
 
             if(option.equals("1") || option.equals("2")){
                 input.nextLine(); // "eat" newline char from int input
                 System.out.println("Enter pivot method (first, random or median3)");
                 pivotMethod = input.nextLine();
             }
-            //Random rand = new Random();
-            //target = rand.nextInt(101); //generate target to search for
-            target = 101;
 
+            long totalTime = 0; //used to calculate average run time
             for (int i = 0; i < iterations; i++){
                 switch(option.trim()){
                     case "1":
@@ -72,7 +68,7 @@ public class Task1 {
                         end = System.nanoTime();
                         break;
                     case "5":
-                        //binary search using recursive quicksort with first element pivot as sorting algorithm
+                        //binary search using recursive quicksort with median3 pivot as sorting algorithm
                         arr = readNumbers(n);
                         System.out.println("TARGET: "+target);
                         quickSortRecursive(arr, 0, arr.length-1, "median3");
@@ -87,15 +83,13 @@ public class Task1 {
                         break;
                 }
                 if (run){
-                    /*
                     for (int j = 0; j < arr.length; j++){
                         System.out.println(arr[j]);
-                    }*/
+                    }
                     System.out.println("\nRun time for algorithm: "+(end-start)+" nano seconds");
                     totalTime = totalTime + (end-start);
                 }
             }
-
             if (run){
                 System.out.println("Average run time for algorithm: "+(totalTime / iterations)+" nano seconds");
             }
@@ -123,6 +117,11 @@ public class Task1 {
         }
         return numbers;
     }
+
+    /*
+        The following iterative quicksort was inspired by the iterative quicksort from geeksforgeeks
+        https://www.geeksforgeeks.org/iterative-quick-sort/
+     */
     public static void quickSortIterative(int[] numbers, int left, int right, String pivotMethod){
         // create extra stack/array
         int[] stack = new int[right - left + 1];
@@ -153,10 +152,12 @@ public class Task1 {
                 stack[++top] = right;
             }
         }
-        //restore pivot to correct pos
-        //swapReferences(numbers, p, right-1);
 
     }
+    /*
+        The following recursive quicksort can be found in the book Data Structures and Algorithm Analysis in Java 3rd Edition by Mark Allen Weiss
+        It has been changed slightly to work.
+     */
     public static void quickSortRecursive(int[] numbers, int left, int right, String pivotMethod){
 
         if (left < right){
@@ -166,6 +167,14 @@ public class Task1 {
         }
 
     }
+
+    /*
+        The partitioning for median of three is using the partitioning found in the book Data Structures and Algorithm Analysis in Java 3rd Edition by Mark Allen Weiss
+        It has been changed slightly to work
+
+        The partitioning for first element as pivot and random element as pivot has been inspired by the partitioning found at geeksforgeeks
+        https://www.geeksforgeeks.org/iterative-quick-sort/
+     */
 
     public static int partition(String pivotMethod, int[] numbers, int left, int right){
         int pivot;
@@ -206,7 +215,6 @@ public class Task1 {
 
 
     public static int first(int[] numbers, int left, int right){
-        int pivot = numbers[left];
         //store pivot at last element
         swapReferences(numbers, left, right);
         return numbers[right];
@@ -242,6 +250,11 @@ public class Task1 {
         numbers[a] = numbers[b];
         numbers[b] = temp;
     }
+
+    /*
+        The following iterative insertion sort can be found in the book Data Structures and Algorithm Analysis in Java 3rd Edition by Mark Allen Weiss
+        It has been changed slightly to work.
+    */
     public static void insertionSortIterative(int[] numbers){
         int j;
         for (int p = 1; p < numbers.length; p++){
@@ -252,6 +265,11 @@ public class Task1 {
             numbers[j] = tmp;
         }
     }
+
+    /*
+        The following recursive insertion sort has been inspired by the algorithm found at wikipedia
+        https://en.wikipedia.org/wiki/Insertion_sort
+     */
     public static void insertionSortRecursive(int[] numbers, int n){
         if (n > 0){
             insertionSortRecursive(numbers, n-1);
@@ -264,6 +282,11 @@ public class Task1 {
             numbers[j+1] = x;
         }
     }
+
+    /*
+        The following binary search algorithm has been inspired by the algorithm found at programiz
+        https://www.programiz.com/dsa/binary-search
+     */
 
     public static boolean binarySearchRecursive(int[] numbers, int target, int low, int high){
         if (high >= low){
